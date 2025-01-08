@@ -16,7 +16,7 @@ The Smart Course Search tool is designed to help users easily discover relevant 
    python -m venv env_name
    ```
 ## 2. Install Dependencies
-To get started, first install the dependencies using:
+Install the dependencies using:
 
 ```bash
 pip install -r requirements.txt
@@ -31,4 +31,4 @@ python search_engine.py
 streamlit run app.py
 ```
 ## 🚀 Deployment
-The project is deployed on Hugging Face Spaces for public access:**[Smart Search Tool](https://huggingface.co/spaces/ankita0705/smart_search)**
+The project is deployed on Hugging Face Spaces for public access: **[Smart Search Tool](https://huggingface.co/spaces/ankita0705/smart_search)**
