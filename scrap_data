@@ -1,0 +1,71 @@
+import requests
+from bs4 import BeautifulSoup
+import openpyxl
+from datetime import datetime
+
+# Initialize Excel workbook and sheet
+workbook = openpyxl.Workbook()
+sheet = workbook.active
+sheet.title = "Analytics Vidhya Free Courses"
+
+# Append header row
+sheet.append(['Course Title', 'Categories', 'Course URL', 'Rating', 'Number of Reviews'])
+
+# URL and headers setup
+url = "https://courses.analyticsvidhya.com/pages/all-free-courses"
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
+
+try:
+    # Make the request
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    
+    # Parse HTML
+    soup = BeautifulSoup(response.content, 'html.parser')
+    
+    # Find all course cards
+    course_cards = soup.find_all('a', class_='course-card')
+    
+    # Extract course information
+    for card in course_cards:
+        # Get course title
+        title = card.find('h3').text.strip() if card.find('h3') else 'No Title'
+        
+        # Get categories
+        categories = card.find('h4').text.strip() if card.find('h4') else 'No Category'
+        categories = categories.replace('\n', '').replace('  ', ' ')
+        
+        # Get course URL
+        course_url = f"https://courses.analyticsvidhya.com{card.get('href')}"
+        
+        # Get rating information
+        rating_div = card.find('div', class_='course-card__reviews')
+        if rating_div:
+            stars = len(rating_div.find_all('i', class_='fa-star'))
+            reviews = rating_div.find('span', class_='review__stars-count')
+            reviews_count = reviews.text.strip('()') if reviews else '0'
+        else:
+            stars = 0
+            reviews_count = '0'
+        
+        # Append data to the sheet
+        sheet.append([title, categories, course_url, stars, reviews_count])
+    
+    # Generate timestamp for filename
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    excel_filename = f'AnalyticsVidhya_Free_Courses_{timestamp}.xlsx'
+    
+    # Save the workbook
+    workbook.save(excel_filename)
+    print(f"Data saved to: {excel_filename}")
+    
+    # Print summary
+    print(f"\nSummary:")
+    print(f"Total courses scraped: {len(course_cards)}")
+    
+except requests.RequestException as e:
+    print(f"Error fetching the page: {e}")
+except Exception as e:
+    print(f"An error occurred: {e}")
